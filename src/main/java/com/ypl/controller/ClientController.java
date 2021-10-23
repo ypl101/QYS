@@ -1,5 +1,6 @@
 package com.ypl.controller;
 
+import org.apache.commons.io.FileUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -20,7 +21,7 @@ import java.util.UUID;
  */
 @Controller
 public class ClientController {
-    @RequestMapping(value = "/fileUpLoads", method = RequestMethod.GET)
+    @RequestMapping(value = "/fileUpLoad", method = RequestMethod.POST)
     @ResponseBody
     public String fileUpLoad(MultipartFile file, HttpSession session) throws IOException {
         String s = null;
@@ -34,10 +35,24 @@ public class ClientController {
             System.out.println("====================客户端已连接====================");
             // 获取Socket流中的输出流,功能:用来把数据写到服务器
             out = socket.getOutputStream();
-            // 创建字节输入流,功能:用来读取数据源(图片)的字节
-            fileIn = new BufferedInputStream(new FileInputStream("C:\\Users\\叶佩林\\Pictures\\Cache_3f3049c62a57a96c..jpg"));
 
-//            fileIn = new BufferedInputStream(fileInputStream);
+            //接下来将MultipartFile转成file文件
+            // 获取文件名
+            String fileName = file.getOriginalFilename();
+            // 获取文件后缀
+            String prefix = fileName.substring(fileName.lastIndexOf("."));
+            // 若须要防止生成的临时文件重复,能够在文件名后添加随机码
+            File files=null;
+            try {
+                 files = File.createTempFile(fileName, prefix);
+                file.transferTo(files);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            // 创建字节输入流,功能:用来读取数据源(图片)的字节
+            fileIn = new BufferedInputStream(new FileInputStream(files));
+            System.out.println(fileIn.toString());
             // 把图片数据写到Socket的输出流中(把数据传给服务器)
             byte[] buffer = new byte[1024];
             int len = -1;
@@ -51,7 +66,6 @@ public class ClientController {
             // ====================反馈信息====================
             // 获取Socket的输入流,作用:读取反馈UUID信息
             in = socket.getInputStream();
-
             // 读反馈信息
             byte[] info = new byte[1024];
             // 把反馈信息存储到info数组中,并记录字节个数
@@ -95,4 +109,5 @@ public class ClientController {
         }
         return s;
     }
+
 }
