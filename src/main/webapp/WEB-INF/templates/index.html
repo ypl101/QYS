@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>首页</title>
+</head>
+<body>
+
+
+<div id="output"></div>
+
+
+<form th:action="@{/fileUpLoad}" method="post" enctype="multipart/form-data">
+    <input type="file" accept='textain' onchange='readFile(event)'><br>
+    选择文件：<input type="file" name="file"> <br>
+    <input type="submit" value="上传">
+</form>
+<a th:href="@{/fileUpLoads}">确定</a>
+</body>
+<script type="text/javascript">
+    var readFile = function (event) {
+        var input = event.target;
+        var reader = new FileReader();
+        reader.onload = function () {
+            if (reader.result) {
+                console.log(reader.result)
+            }
+        };
+        reader.readAsText(input.files[0]);
+    };
+</script>
+</html>
